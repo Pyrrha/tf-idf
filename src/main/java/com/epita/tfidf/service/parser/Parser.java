@@ -1,5 +1,6 @@
 package com.epita.tfidf.service.parser;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -37,5 +38,10 @@ public class Parser {
         }
 
         return content;
+    }
+
+    public static void main(@NotNull String[] args) {
+        Parser parser = new Parser(args[0]);
+        System.out.println(parser.parseHtml());
     }
 }
