@@ -1,3 +1,3 @@
 package com.epita.tfidf;
 
-public class Tfidf {}
+public class Main {}
