@@ -14,7 +14,6 @@ public class Tokenizer {
         for (String word : lowerText.split("[ .,;]"))
             listOfTokens.add(new Token(word));
 
-        // make lowercase tokens from string
         // delete stop words
         // steamming
         // synonymes
