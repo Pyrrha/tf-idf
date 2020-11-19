@@ -11,8 +11,9 @@ public class Tokenizer {
         final List <Token> listOfTokens = new ArrayList<>();
         String lowerText = cleanText.toLowerCase();
 
-        for (String word : lowerText.split(" "))
+        for (String word : lowerText.split("[ .,;]"))
             listOfTokens.add(new Token(word));
+
         // make lowercase tokens from string
         // delete stop words
         // steamming

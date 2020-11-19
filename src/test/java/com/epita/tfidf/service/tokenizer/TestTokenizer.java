@@ -23,4 +23,22 @@ public class TestTokenizer {
         final List<Token> listOfTokens = Tokenizer.process("Hello World");
         assertEquals(2, listOfTokens.size());
     }
+
+    @Test
+    public void whenPassingWordsSeparatedByAComaThenGetTwoTokens() {
+        final List<Token> listOfTokens = Tokenizer.process("Hello,World");
+        assertEquals(2, listOfTokens.size());
+    }
+
+    @Test
+    public void whenPassingWordsSeparatedByADotThenGetTwoTokens() {
+        final List<Token> listOfTokens = Tokenizer.process("Hello.World");
+        assertEquals(2, listOfTokens.size());
+    }
+
+    @Test
+    public void whenPassingWordsSeparatedByADotComaThenGetTwoTokens() {
+        final List<Token> listOfTokens = Tokenizer.process("Hello;World");
+        assertEquals(2, listOfTokens.size());
+    }
 }
