@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Tokenizer {
 
+    private Tokenizer() {}
+
     /**
      * Create an array of tokens from a clean text
      * @param cleanText String result of a scrapping action
@@ -16,12 +18,11 @@ public class Tokenizer {
         final List <Token> listOfTokens = new ArrayList<>();
         String lowerText = cleanText.toLowerCase();
 
-        for (String word : lowerText.split("[ .,;]"))
+        // regex captures single points (.), comas(,), semicolons (;), quotation marks ("),
+        // and spaces with optionally a dash or an apostrophe aside.
+        for (String word : lowerText.split("[.,;\"]|(['-]* ['-]*)"))
             listOfTokens.add(new Token(word));
 
-        // delete stop words
-        // steamming
-        // synonymes
         return listOfTokens;
     }
 }
