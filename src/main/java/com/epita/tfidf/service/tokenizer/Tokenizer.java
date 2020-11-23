@@ -7,6 +7,8 @@ import java.util.List;
 
 public class Tokenizer {
 
+    private Tokenizer() {}
+
     /**
      * Create an array of tokens from a clean text
      * @param cleanText String result of a scrapping action
