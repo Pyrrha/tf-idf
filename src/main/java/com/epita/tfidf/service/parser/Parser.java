@@ -23,7 +23,7 @@ public class Parser {
 
     /**
      * Function to parse HTML
-     * @return String with data of the url
+     * @return String content, with data of the url
      */
     public String parseHtml() {
         String content = "";

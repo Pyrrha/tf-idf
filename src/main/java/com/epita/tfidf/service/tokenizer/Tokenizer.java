@@ -5,7 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class Tokenizer
+ */
 public class Tokenizer {
+
+    private Tokenizer() {}
 
     /**
      * Create an array of tokens from a clean text
@@ -16,12 +21,11 @@ public class Tokenizer {
         final List <Token> listOfTokens = new ArrayList<>();
         String lowerText = cleanText.toLowerCase();
 
-        for (String word : lowerText.split("[ .,;]"))
+        // regex captures single points (.), comas(,), semicolons (;), quotation marks ("),
+        // and spaces with optionally a dash or an apostrophe aside.
+        for (String word : lowerText.split("[.,;\"]|(['-]* ['-]*)"))
             listOfTokens.add(new Token(word));
 
-        // delete stop words
-        // steamming
-        // synonymes
         return listOfTokens;
     }
 }
