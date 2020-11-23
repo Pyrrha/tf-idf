@@ -2,8 +2,9 @@ package com.epita.tfidf.service.tokenizer;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
+/**
+ * Class Token
+ */
 public class Token {
     private final String value;
 
@@ -19,6 +20,11 @@ public class Token {
         return value;
     }
 
+    /**
+     * Function equals
+     * @param o
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

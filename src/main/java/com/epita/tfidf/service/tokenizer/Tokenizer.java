@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class Tokenizer
+ */
 public class Tokenizer {
 
     private Tokenizer() {}

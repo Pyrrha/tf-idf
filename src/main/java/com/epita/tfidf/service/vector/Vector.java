@@ -1,45 +1,52 @@
 package com.epita.tfidf.service.vector;
 
-import com.epita.tfidf.service.tokenizer.Token;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
+/**
+ * Class Vector
+ */
 public class Vector {
 
-    private Map<String, VectorValues> vector;
+    private final List<String> tokens;
 
-    public Vector(List<Token> tokens) {
-        this.vector = new HashMap<>();
+    public Vector(List<String> tokens) {
+        this.tokens = tokens;
     }
 
-    public Map<String, VectorValues> vectorize(final List<String> tokens) {
-        int total = tokens.size();
+    /**
+     * Create a Map containing each distinct token, associated with an object
+     * representing its occurence frequency and its positions in the list.
+     * @return vector
+     */
+    public Map<String, VectorValues> vectorize() {
+        Map<String, VectorValues> vector = new HashMap<>();
+        int total = this.tokens.size();
         int index = 0;
 
-        for (String token : tokens) {
-            if (this.vector.containsKey(token)) {
-                this.vector.get(token).positions.add(index);
-                this.vector.get(token).frequency += 1/total;
+        for (String token : this.tokens) {
+            if (vector.containsKey(token)) {
+                vector.get(token).positions.add(index);
+                vector.get(token).frequency += 1/total;
             }
             else {
-                this.vector.put(token, new VectorValues(1/total, new ArrayList<>(index)));
+                vector.put(token, new VectorValues(1/total, new ArrayList<>(index)));
             }
             ++index;
         }
 
-        return this.vector;
+        return vector;
     }
 
-    @RequiredArgsConstructor
+    /**
+     * Object representing the frequency and the positions of a token.
+     */
     @Data
-    class VectorValues {
+    static class VectorValues {
         private int frequency;
         private List<Integer> positions;
 
@@ -48,5 +55,4 @@ public class Vector {
             this.positions = positions;
         }
     }
-
 }
