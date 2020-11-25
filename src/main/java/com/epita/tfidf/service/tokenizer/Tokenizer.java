@@ -10,7 +10,7 @@ public class Tokenizer {
 
     private String text;
 
-    private Tokenizer(@NotNull String cleanText) {
+    public Tokenizer(@NotNull String cleanText) {
         this.text = cleanText;
     }
 
