@@ -1,7 +1,5 @@
 package com.epita.tfidf.service.stemming;
 
-import com.epita.tfidf.service.tokenizer.Token;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,9 +9,11 @@ import java.util.stream.Collectors;
 public class Stemming {
 
     private List<String> tokens;
+    private PorterStemmer stemmer;
 
     public Stemming(List<String> tokens) {
         this.tokens = tokens;
+        this.stemmer = new PorterStemmer();
     }
 
     /**
@@ -22,17 +22,22 @@ public class Stemming {
      */
     public List<String> stem() {
         return this.tokens.stream()
-                .map(Stemming::getRootForm)
+                .map(this::getRootForm)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Parse the given word to its root form.
+     * Parse the given word to its root form with the Porter Stemmer
+     * algorithm.
      * @param word word to stem
      * @return stemmed word
      */
-    private static String getRootForm(String word) {
-        //TODO get the stem word
-        return word;
+    private String getRootForm(String word) {
+        String res;
+        this.stemmer.add(word);
+        this.stemmer.stem();
+        res = this.stemmer.toString();
+        this.stemmer.clear();
+        return res;
     }
 }
