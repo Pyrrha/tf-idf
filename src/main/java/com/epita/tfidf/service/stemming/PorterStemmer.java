@@ -9,15 +9,15 @@ package com.epita.tfidf.service.stemming;
 class PorterStemmer {
 
     private char[] b;
-    private int i, /* offset into b */
-            i_end, /* offset to end of stemmed word */
-            j, k;
+    private int i;      /* offset into b */
+    private int iEnd;  /* offset to end of stemmed word */
+    private int j, k;
     private static final int INC = 50; /* unit of size whereby b is increased */
 
     public PorterStemmer() {
         b = new char[INC];
         i = 0;
-        i_end = 0;
+        iEnd = 0;
     }
 
     /**
@@ -26,10 +26,10 @@ class PorterStemmer {
      */
     public void add(char ch) {
         if (i == b.length) {
-            char[] new_b = new char[i + INC];
+            char[] newB = new char[i + INC];
             for (int c = 0; c < i; c++)
-                new_b[c] = b[c];
-            b = new_b;
+                newB[c] = b[c];
+            b = newB;
         }
         b[i++] = ch;
     }
@@ -41,9 +41,10 @@ class PorterStemmer {
      */
     public void add(char[] w, int wLen) {
         if (i + wLen >= b.length) {
-            char[] new_b = new char[i + wLen + INC];
-            for (int c = 0; c < i; c++) new_b[c] = b[c];
-            b = new_b;
+            char[] newB = new char[i + wLen + INC];
+            for (int c = 0; c < i; c++)
+                newB[c] = b[c];
+            b = newB;
         }
         for (int c = 0; c < wLen; c++)
             b[i++] = w[c];
@@ -53,7 +54,7 @@ class PorterStemmer {
      * Adds a word in the stemmer if no character has been added before.
      */
     public void add(String w) {
-        if (this.i_end == 0)
+        if (this.iEnd == 0)
             add(w.toCharArray(), w.length());
     }
 
@@ -63,7 +64,7 @@ class PorterStemmer {
     public void clear() {
         this.b = new char[INC];
         this.i = 0;
-        this.i_end = 0;
+        this.iEnd = 0;
     }
 
     /**
@@ -72,14 +73,14 @@ class PorterStemmer {
      * and getResultLength (which is generally more efficient.)
      */
     public String toString() {
-        return new String(b, 0, i_end);
+        return new String(b, 0, iEnd);
     }
 
     /**
      * Returns the length of the word resulting from the stemming process.
      */
     public int getResultLength() {
-        return i_end;
+        return iEnd;
     }
 
     /**
@@ -94,7 +95,7 @@ class PorterStemmer {
     /**
      *  Returns true if the letter at index b[i] is a consonant.
      */
-    private final boolean isCons(int i) {
+    private boolean isCons(int i) {
         switch (b[i]) {
             case 'a':
             case 'e':
@@ -103,7 +104,7 @@ class PorterStemmer {
             case 'u':
                 return false;
             case 'y':
-                return (i == 0) ? true : !isCons(i - 1);
+                return i == 0 || !isCons(i - 1);
             default:
                 return true;
         }
@@ -120,47 +121,50 @@ class PorterStemmer {
     *    <c>vcvcvc<v> gives 3
     *    ....
     */
-    private final int consSequences() {
+    private int consSequences() {
         int n = 0;
-        int i = 0;
+        int m = 0;
         while (true) {
-            if (i > j) return n;
-            if (!isCons(i)) break;
-            i++;
+            if (m > j) return n;
+            if (!isCons(m)) break;
+            m++;
         }
-        i++;
+        m++;
         while (true) {
             while (true) {
-                if (i > j) return n;
-                if (isCons(i)) break;
-                i++;
+                if (m > j) return n;
+                if (isCons(m)) break;
+                m++;
             }
-            i++;
+            m++;
             n++;
             while (true) {
-                if (i > j) return n;
-                if (!isCons(i)) break;
-                i++;
+                if (m > j) return n;
+                if (!isCons(m)) break;
+                m++;
             }
-            i++;
+            m++;
         }
     }
 
     /**
      * Returns true if the letters in the interval 0,...j contains a vowel.
      */
-    private final boolean hasVowelInStem() {
-        int i;
-        for (i = 0; i <= j; i++) if (!isCons(i)) return true;
+    private boolean hasVowelInStem() {
+        for (int n = 0; n <= j; n++)
+            if (!isCons(n))
+                return true;
         return false;
     }
 
     /**
      * Returns true if the letters at index j,(j-1) are double consonants.
      */
-    private final boolean hasDoubleCons(int j) {
-        if (j < 1) return false;
-        if (b[j] != b[j - 1]) return false;
+    private boolean hasDoubleCons(int j) {
+        if (j < 1)
+            return false;
+        if (b[j] != b[j - 1])
+            return false;
         return isCons(j);
     }
 
@@ -172,23 +176,24 @@ class PorterStemmer {
      *   cav(e), lov(e), hop(e), crim(e), but
      *   snow, box, tray.
     */
-    private final boolean cvc(int i) {
-        if (i < 2 || !isCons(i) || isCons(i - 1) || !isCons(i - 2)) return false;
-        {
-            int ch = b[i];
-            if (ch == 'w' || ch == 'x' || ch == 'y') return false;
-        }
-        return true;
+    private boolean cvc(int i) {
+        if (i < 2 || !isCons(i) || isCons(i - 1) || !isCons(i - 2))
+            return false;
+        int ch = b[i];
+        return ch != 'w' && ch != 'x' && ch != 'y';
     }
 
     /**
      * Returns true if the word ends by the suffix given in parameter.
      */
-    private final boolean endsBy(String s) {
+    private boolean endsBy(String s) {
         int l = s.length();
         int o = k - l + 1;
-        if (o < 0) return false;
-        for (int i = 0; i < l; i++) if (b[o + i] != s.charAt(i)) return false;
+        if (o < 0)
+            return false;
+        for (int n = 0; n < l; n++)
+            if (b[o + n] != s.charAt(n))
+                return false;
         j = k - l;
         return true;
     }
@@ -197,17 +202,18 @@ class PorterStemmer {
      * Sets (j+1),...k to the characters in the string s, readjusting
      * k.
      */
-    private final void setTo(String s) {
+    private void setTo(String s) {
         int l = s.length();
         int o = j + 1;
-        for (int i = 0; i < l; i++) b[o + i] = s.charAt(i);
+        for (int n = 0; n < l; n++)
+            b[o + n] = s.charAt(n);
         k = j + l;
     }
 
     /**
      * Append given word termination.
      */
-    private final void appendSuffix(String s) {
+    private void appendSuffix(String s) {
         if (consSequences() > 0) setTo(s);
     }
 
@@ -232,33 +238,41 @@ class PorterStemmer {
      *
      *      meetings  ->  meet
      */
-    private final void step1() {
+    private void step1() {
         if (b[k] == 's') {
-            if (endsBy("sses")) k -= 2;
-            else if (endsBy("ies")) setTo("i");
-            else if (b[k - 1] != 's') k--;
+            if (endsBy("sses"))
+                k -= 2;
+            else if (endsBy("ies"))
+                setTo("i");
+            else if (b[k - 1] != 's')
+                k--;
         }
         if (endsBy("eed")) {
-            if (consSequences() > 0) k--;
-        } else if ((endsBy("ed") || endsBy("ing")) && hasVowelInStem()) {
-            k = j;
-            if (endsBy("at")) setTo("ate");
-            else if (endsBy("bl")) setTo("ble");
-            else if (endsBy("iz")) setTo("ize");
-            else if (hasDoubleCons(k)) {
+            if (consSequences() > 0)
                 k--;
-                {
-                    int ch = b[k];
-                    if (ch == 'l' || ch == 's' || ch == 'z') k++;
-                }
-            } else if (consSequences() == 1 && cvc(k)) setTo("e");
+        }
+        else if ((endsBy("ed") || endsBy("ing")) && hasVowelInStem()) {
+            k = j;
+            if (endsBy("at"))
+                setTo("ate");
+            else if (endsBy("bl"))
+                setTo("ble");
+            else if (endsBy("iz"))
+                setTo("ize");
+            else if (hasDoubleCons(k)) {
+                int ch = b[k-1];
+                if (!(ch == 'l' || ch == 's' || ch == 'z'))
+                    k--;
+            }
+            else if (consSequences() == 1 && cvc(k))
+                setTo("e");
         }
     }
 
     /**
      * Turns terminal y to i when there is another vowel in the stem.
      */
-    private final void step2() {
+    private void step2() {
         if (endsBy("y") && hasVowelInStem()) b[k] = 'i';
     }
 
@@ -267,7 +281,7 @@ class PorterStemmer {
      * -ation) maps to -ize etc. note that the string before the suffix must give
      * m() > 0.
      */
-    private final void step3() {
+    private void step3() {
         if (k == 0) return; /* For Bug 1 */
         switch (b[k - 1]) {
             case 'a':
@@ -375,7 +389,7 @@ class PorterStemmer {
     /**
      * Deals with -ic-, -full, -ness etc. Similar strategy to step3.
      */
-    private final void step4() {
+    private void step4() {
         switch (b[k]) {
             case 'e':
                 if (endsBy("icate")) {
@@ -419,7 +433,7 @@ class PorterStemmer {
     /**
      * Takes off -ant, -ence etc., in context <c>vcvc<v>.
      */
-    private final void step5() {
+    private void step5() {
         if (k == 0) return; /* for Bug 1 */
         switch (b[k - 1]) {
             case 'a':
@@ -477,7 +491,7 @@ class PorterStemmer {
     /**
      * Removes a final -e if m() > 1.
      */
-    private final void step6() {
+    private void step6() {
         j = k;
         if (b[k] == 'e') {
             int a = consSequences();
@@ -501,7 +515,7 @@ class PorterStemmer {
             step5();
             step6();
         }
-        i_end = k + 1;
+        iEnd = k + 1;
         i = 0;
     }
 }
