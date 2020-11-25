@@ -1,11 +1,10 @@
 package com.epita.tfidf.service.stemming;
 
 /**
- * Stemmer, implementing the Porter Stemming Algorithm
- * <p>
+ * Stemmer, implementing the Porter Stemming Algorithm.
  * The Stemmer class transforms a word into its root form. The input
  * word can be provided a character at time (by calling add()), or at once
- * by calling one of the various stem(something) methods.
+ * by calling one of the various add(something) methods.
  */
 class PorterStemmer {
 
@@ -58,6 +57,9 @@ class PorterStemmer {
             add(w.toCharArray(), w.length());
     }
 
+    /**
+     * Clears the word in the stemmer and resets the cursors.
+     */
     public void clear() {
         this.b = new char[INC];
         this.i = 0;
@@ -92,7 +94,7 @@ class PorterStemmer {
     /**
      *  Returns true if the letter at index b[i] is a consonant.
      */
-    private final boolean cons(int i) {
+    private final boolean isCons(int i) {
         switch (b[i]) {
             case 'a':
             case 'e':
@@ -101,7 +103,7 @@ class PorterStemmer {
             case 'u':
                 return false;
             case 'y':
-                return (i == 0) ? true : !cons(i - 1);
+                return (i == 0) ? true : !isCons(i - 1);
             default:
                 return true;
         }
@@ -118,26 +120,26 @@ class PorterStemmer {
     *    <c>vcvcvc<v> gives 3
     *    ....
     */
-    private final int m() {
+    private final int consSequences() {
         int n = 0;
         int i = 0;
         while (true) {
             if (i > j) return n;
-            if (!cons(i)) break;
+            if (!isCons(i)) break;
             i++;
         }
         i++;
         while (true) {
             while (true) {
                 if (i > j) return n;
-                if (cons(i)) break;
+                if (isCons(i)) break;
                 i++;
             }
             i++;
             n++;
             while (true) {
                 if (i > j) return n;
-                if (!cons(i)) break;
+                if (!isCons(i)) break;
                 i++;
             }
             i++;
@@ -147,19 +149,19 @@ class PorterStemmer {
     /**
      * Returns true if the letters in the interval 0,...j contains a vowel.
      */
-    private final boolean vowelinstem() {
+    private final boolean hasVowelInStem() {
         int i;
-        for (i = 0; i <= j; i++) if (!cons(i)) return true;
+        for (i = 0; i <= j; i++) if (!isCons(i)) return true;
         return false;
     }
 
     /**
      * Returns true if the letters at index j,(j-1) are double consonants.
      */
-    private final boolean doublec(int j) {
+    private final boolean hasDoubleCons(int j) {
         if (j < 1) return false;
         if (b[j] != b[j - 1]) return false;
-        return cons(j);
+        return isCons(j);
     }
 
     /**
@@ -171,7 +173,7 @@ class PorterStemmer {
      *   snow, box, tray.
     */
     private final boolean cvc(int i) {
-        if (i < 2 || !cons(i) || cons(i - 1) || !cons(i - 2)) return false;
+        if (i < 2 || !isCons(i) || isCons(i - 1) || !isCons(i - 2)) return false;
         {
             int ch = b[i];
             if (ch == 'w' || ch == 'x' || ch == 'y') return false;
@@ -182,7 +184,7 @@ class PorterStemmer {
     /**
      * Returns true if the word ends by the suffix given in parameter.
      */
-    private final boolean ends(String s) {
+    private final boolean endsBy(String s) {
         int l = s.length();
         int o = k - l + 1;
         if (o < 0) return false;
@@ -195,7 +197,7 @@ class PorterStemmer {
      * Sets (j+1),...k to the characters in the string s, readjusting
      * k.
      */
-    private final void setto(String s) {
+    private final void setTo(String s) {
         int l = s.length();
         int o = j + 1;
         for (int i = 0; i < l; i++) b[o + i] = s.charAt(i);
@@ -203,10 +205,10 @@ class PorterStemmer {
     }
 
     /**
-     * Used further down to append word terminations.
+     * Append given word termination.
      */
-    private final void r(String s) {
-        if (m() > 0) setto(s);
+    private final void appendSuffix(String s) {
+        if (consSequences() > 0) setTo(s);
     }
 
     /**
@@ -232,24 +234,24 @@ class PorterStemmer {
      */
     private final void step1() {
         if (b[k] == 's') {
-            if (ends("sses")) k -= 2;
-            else if (ends("ies")) setto("i");
+            if (endsBy("sses")) k -= 2;
+            else if (endsBy("ies")) setTo("i");
             else if (b[k - 1] != 's') k--;
         }
-        if (ends("eed")) {
-            if (m() > 0) k--;
-        } else if ((ends("ed") || ends("ing")) && vowelinstem()) {
+        if (endsBy("eed")) {
+            if (consSequences() > 0) k--;
+        } else if ((endsBy("ed") || endsBy("ing")) && hasVowelInStem()) {
             k = j;
-            if (ends("at")) setto("ate");
-            else if (ends("bl")) setto("ble");
-            else if (ends("iz")) setto("ize");
-            else if (doublec(k)) {
+            if (endsBy("at")) setTo("ate");
+            else if (endsBy("bl")) setTo("ble");
+            else if (endsBy("iz")) setTo("ize");
+            else if (hasDoubleCons(k)) {
                 k--;
                 {
                     int ch = b[k];
                     if (ch == 'l' || ch == 's' || ch == 'z') k++;
                 }
-            } else if (m() == 1 && cvc(k)) setto("e");
+            } else if (consSequences() == 1 && cvc(k)) setTo("e");
         }
     }
 
@@ -257,7 +259,7 @@ class PorterStemmer {
      * Turns terminal y to i when there is another vowel in the stem.
      */
     private final void step2() {
-        if (ends("y") && vowelinstem()) b[k] = 'i';
+        if (endsBy("y") && hasVowelInStem()) b[k] = 'i';
     }
 
     /**
@@ -269,102 +271,102 @@ class PorterStemmer {
         if (k == 0) return; /* For Bug 1 */
         switch (b[k - 1]) {
             case 'a':
-                if (ends("ational")) {
-                    r("ate");
+                if (endsBy("ational")) {
+                    appendSuffix("ate");
                     break;
                 }
-                if (ends("tional")) {
-                    r("tion");
+                if (endsBy("tional")) {
+                    appendSuffix("tion");
                     break;
                 }
                 break;
             case 'c':
-                if (ends("enci")) {
-                    r("ence");
+                if (endsBy("enci")) {
+                    appendSuffix("ence");
                     break;
                 }
-                if (ends("anci")) {
-                    r("ance");
+                if (endsBy("anci")) {
+                    appendSuffix("ance");
                     break;
                 }
                 break;
             case 'e':
-                if (ends("izer")) {
-                    r("ize");
+                if (endsBy("izer")) {
+                    appendSuffix("ize");
                     break;
                 }
                 break;
             case 'l':
-                if (ends("bli")) {
-                    r("ble");
+                if (endsBy("bli")) {
+                    appendSuffix("ble");
                     break;
                 }
-                if (ends("alli")) {
-                    r("al");
+                if (endsBy("alli")) {
+                    appendSuffix("al");
                     break;
                 }
-                if (ends("entli")) {
-                    r("ent");
+                if (endsBy("entli")) {
+                    appendSuffix("ent");
                     break;
                 }
-                if (ends("eli")) {
-                    r("e");
+                if (endsBy("eli")) {
+                    appendSuffix("e");
                     break;
                 }
-                if (ends("ousli")) {
-                    r("ous");
+                if (endsBy("ousli")) {
+                    appendSuffix("ous");
                     break;
                 }
                 break;
             case 'o':
-                if (ends("ization")) {
-                    r("ize");
+                if (endsBy("ization")) {
+                    appendSuffix("ize");
                     break;
                 }
-                if (ends("ation")) {
-                    r("ate");
+                if (endsBy("ation")) {
+                    appendSuffix("ate");
                     break;
                 }
-                if (ends("ator")) {
-                    r("ate");
+                if (endsBy("ator")) {
+                    appendSuffix("ate");
                     break;
                 }
                 break;
             case 's':
-                if (ends("alism")) {
-                    r("al");
+                if (endsBy("alism")) {
+                    appendSuffix("al");
                     break;
                 }
-                if (ends("iveness")) {
-                    r("ive");
+                if (endsBy("iveness")) {
+                    appendSuffix("ive");
                     break;
                 }
-                if (ends("fulness")) {
-                    r("ful");
+                if (endsBy("fulness")) {
+                    appendSuffix("ful");
                     break;
                 }
-                if (ends("ousness")) {
-                    r("ous");
+                if (endsBy("ousness")) {
+                    appendSuffix("ous");
                     break;
                 }
                 break;
             case 't':
-                if (ends("aliti")) {
-                    r("al");
+                if (endsBy("aliti")) {
+                    appendSuffix("al");
                     break;
                 }
-                if (ends("iviti")) {
-                    r("ive");
+                if (endsBy("iviti")) {
+                    appendSuffix("ive");
                     break;
                 }
-                if (ends("biliti")) {
-                    r("ble");
+                if (endsBy("biliti")) {
+                    appendSuffix("ble");
                     break;
                 }
                 break;
             case 'g':
-                if (ends("logi")) {
-                    r("log");
+                if (endsBy("logi")) {
+                    appendSuffix("log");
                     break;
                 }
         }
@@ -376,38 +378,38 @@ class PorterStemmer {
     private final void step4() {
         switch (b[k]) {
             case 'e':
-                if (ends("icate")) {
-                    r("ic");
+                if (endsBy("icate")) {
+                    appendSuffix("ic");
                     break;
                 }
-                if (ends("ative")) {
-                    r("");
+                if (endsBy("ative")) {
+                    appendSuffix("");
                     break;
                 }
-                if (ends("alize")) {
-                    r("al");
+                if (endsBy("alize")) {
+                    appendSuffix("al");
                     break;
                 }
                 break;
             case 'i':
-                if (ends("iciti")) {
-                    r("ic");
+                if (endsBy("iciti")) {
+                    appendSuffix("ic");
                     break;
                 }
                 break;
             case 'l':
-                if (ends("ical")) {
-                    r("ic");
+                if (endsBy("ical")) {
+                    appendSuffix("ic");
                     break;
                 }
-                if (ends("ful")) {
-                    r("");
+                if (endsBy("ful")) {
+                    appendSuffix("");
                     break;
                 }
                 break;
             case 's':
-                if (ends("ness")) {
-                    r("");
+                if (endsBy("ness")) {
+                    appendSuffix("");
                     break;
                 }
                 break;
@@ -421,55 +423,55 @@ class PorterStemmer {
         if (k == 0) return; /* for Bug 1 */
         switch (b[k - 1]) {
             case 'a':
-                if (ends("al")) break;
+                if (endsBy("al")) break;
                 return;
             case 'c':
-                if (ends("ance")) break;
-                if (ends("ence")) break;
+                if (endsBy("ance")) break;
+                if (endsBy("ence")) break;
                 return;
             case 'e':
-                if (ends("er")) break;
+                if (endsBy("er")) break;
                 return;
             case 'i':
-                if (ends("ic")) break;
+                if (endsBy("ic")) break;
                 return;
             case 'l':
-                if (ends("able")) break;
-                if (ends("ible")) break;
+                if (endsBy("able")) break;
+                if (endsBy("ible")) break;
                 return;
             case 'n':
-                if (ends("ant")) break;
-                if (ends("ement")) break;
-                if (ends("ment")) break;
+                if (endsBy("ant")) break;
+                if (endsBy("ement")) break;
+                if (endsBy("ment")) break;
                 /* element etc. not stripped before the m */
-                if (ends("ent")) break;
+                if (endsBy("ent")) break;
                 return;
             case 'o':
-                if (ends("ion") && j >= 0 && (b[j] == 's' || b[j] == 't')) break;
+                if (endsBy("ion") && j >= 0 && (b[j] == 's' || b[j] == 't')) break;
                 /* j >= 0 fixes Bug 2 */
-                if (ends("ou")) break;
+                if (endsBy("ou")) break;
                 return;
             /* takes care of -ous */
             case 's':
-                if (ends("ism")) break;
+                if (endsBy("ism")) break;
                 return;
             case 't':
-                if (ends("ate")) break;
-                if (ends("iti")) break;
+                if (endsBy("ate")) break;
+                if (endsBy("iti")) break;
                 return;
             case 'u':
-                if (ends("ous")) break;
+                if (endsBy("ous")) break;
                 return;
             case 'v':
-                if (ends("ive")) break;
+                if (endsBy("ive")) break;
                 return;
             case 'z':
-                if (ends("ize")) break;
+                if (endsBy("ize")) break;
                 return;
             default:
                 return;
         }
-        if (m() > 1) k = j;
+        if (consSequences() > 1) k = j;
     }
 
     /**
@@ -478,10 +480,10 @@ class PorterStemmer {
     private final void step6() {
         j = k;
         if (b[k] == 'e') {
-            int a = m();
+            int a = consSequences();
             if (a > 1 || a == 1 && !cvc(k - 1)) k--;
         }
-        if (b[k] == 'l' && doublec(k) && m() > 1) k--;
+        if (b[k] == 'l' && hasDoubleCons(k) && consSequences() > 1) k--;
     }
 
     /**
