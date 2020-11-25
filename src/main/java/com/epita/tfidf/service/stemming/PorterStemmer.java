@@ -9,7 +9,7 @@ package com.epita.tfidf.service.stemming;
 class PorterStemmer {
 
     private char[] b;
-    private int i;      /* offset into b */
+    private int i;     /* offset into b */
     private int iEnd;  /* offset to end of stemmed word */
     private int j, k;
     private static final int INC = 50; /* unit of size whereby b is increased */
