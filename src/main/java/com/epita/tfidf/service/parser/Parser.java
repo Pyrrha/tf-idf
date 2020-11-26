@@ -38,10 +38,4 @@ public class Parser {
 
         return content;
     }
-
-    //TODO remove
-    public static void main(@NotNull String[] args) {
-        Parser parser = new Parser(args[0]);
-        System.out.println(parser.parseHtml());
-    }
 }
