@@ -15,7 +15,7 @@ public class StopWordsRemover {
      * Constructor ; gets the file containing the stop words and turn it into a list.
      */
     public StopWordsRemover() {
-        List<String> stopWords = new ArrayList<>();
+        List<String> list = new ArrayList<>();
         File stopWordsFile = new File(STOP_WORDS_FILE_PATH);
         BufferedReader reader;
 
@@ -31,14 +31,14 @@ public class StopWordsRemover {
         try {
             String line;
             while ((line = reader.readLine()) != null) {
-                stopWords.add(line);
+                list.add(line);
             }
         }
         catch(IOException e) {
             System.err.println(e.getMessage());
         }
 
-        this.stopWords = stopWords;
+        this.stopWords = list;
     }
 
     /**
