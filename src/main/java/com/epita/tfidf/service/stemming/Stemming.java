@@ -41,20 +41,4 @@ public class Stemming {
         this.stemmer.clear();
         return res;
     }
-
-    public static void main(String[] args) {
-        //tokens générés depuis le Parser et après le StopWordsRemover
-        List<String> tokens = Arrays.asList(
-                "stemming", "controlled", "remover",
-                "root", "bing", "microsoft", "extermination",
-                "conspiracy", "sufficient", "pedantic", "studious",
-                "pranked", "hidden"
-        );
-        Stemming stemmer = new Stemming(tokens);
-        List<String> stemmedWords = stemmer.stem();
-
-        for (int i = 0; i < tokens.size(); i++) {
-            System.out.println(tokens.get(i) + " -> " + stemmedWords.get(i));
-        }
-    }
 }

@@ -1,13 +1,9 @@
 package com.epita.tfidf.service.vector;
 
-import org.graalvm.compiler.lir.LIRInstruction;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TestVector {
 
@@ -20,5 +16,7 @@ public class TestVector {
     }
 
     @Test
-    public void whenThen() {}
+    public void when_Then_() {
+        //TODO
+    }
 }
