@@ -1,17 +1,18 @@
 package com.epita.tfidf;
 
-import java.util.List;
-import java.util.Map;
 import com.epita.tfidf.service.parser.Parser;
 import com.epita.tfidf.service.stemming.Stemming;
 import com.epita.tfidf.service.stemming.StopWordsRemover;
-import com.epita.tfidf.service.synonyms.Synonyms;
+import com.epita.tfidf.service.synonyms.SynonymReplacer;
 import com.epita.tfidf.service.tokenizer.Tokenizer;
 import com.epita.tfidf.service.vector.Vector;
 import com.epita.tfidf.service.vector.Vector.VectorValues;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 public class Main {
 
@@ -35,8 +36,8 @@ public class Main {
         tokens = stemmer.stem();
 
         //5 replace synonyms
-        Synonyms synonyms = new Synonyms();
-        tokens = synonyms.process(tokens);
+        SynonymReplacer synonymReplacer = new SynonymReplacer();
+        tokens = synonymReplacer.process(tokens);
 
         //6 vectorize
         Vector vector = new Vector(tokens);
