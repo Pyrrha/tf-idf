@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class Vector
@@ -14,7 +14,7 @@ public class Vector {
 
     private final List<String> tokens;
 
-    public Vector(List<String> tokens) {
+    public Vector(@NotNull List<String> tokens) {
         this.tokens = tokens;
     }
 
@@ -46,7 +46,7 @@ public class Vector {
      * Object representing the frequency and the positions of a token.
      */
     @Data
-    static class VectorValues {
+    public static class VectorValues {
         private int frequency;
         private List<Integer> positions;
 

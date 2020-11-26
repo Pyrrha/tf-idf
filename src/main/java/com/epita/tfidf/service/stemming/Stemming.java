@@ -42,6 +42,7 @@ public class Stemming {
         return res;
     }
 
+    //TODO remove
     public static void main(String[] args) {
         //tokens générés depuis le Parser et après le StopWordsRemover
         List<String> tokens = Arrays.asList(
